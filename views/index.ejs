@@ -96,28 +96,30 @@
             <% files.forEach(file => { %>
                 <li class="w3-bar">
                     <!-- Display the file name -->
-                    <span class="w3-bar-item w3-ellipsis"><%= file %></span>
+                    <span class="w3-bar-item w3-ellipsis"><%= file.name %></span>
+                    <!-- Display the file size -->
+                    <span class="w3-bar-item w3-text-gray"><%= file.size %></span>
                     <div class="action-buttons"> <!-- Add the action-buttons class here -->
                         <!-- Form for running a script on the file -->
-                        <form class="w3-bar-item" action="/run-script/<%= file %>" method="POST">
+                        <form class="w3-bar-item" action="/run-script/<%= file.name %>" method="POST">
                             <button class="w3-button w3-blue" type="submit">Send MultiBoot</button>
                         </form>    
                         <!-- Rename button with a JavaScript function call to toggleRenameForm -->
-                        <button id="rename-button-<%= file %>" class="w3-button w3-purple" onclick="toggleRenameForm(event, '<%= file %>')">Rename</button>
+                        <button id="rename-button-<%= file.name %>" class="w3-button w3-purple" onclick="toggleRenameForm(event, '<%= file.name %>')">Rename</button>
                         <!-- Download button for the file -->
                         <form>
-                            <a class="w3-bar-item w3-button w3-green" href="/download/<%= file %>" download>Download</a>
+                            <a class="w3-bar-item w3-button w3-green" href="/download/<%= file.name %>" download>Download</a>
                         </form>
                         <!-- Form for deleting the file -->
-                        <form class="w3-bar-item" action="/delete/<%= file %>" method="POST">
+                        <form class="w3-bar-item" action="/delete/<%= file.name %>" method="POST">
                             <button class="w3-button w3-red" type="submit">Delete</button>
                         </form>
                     </div>
                     <!-- Rename form for changing the file name -->
-                    <form id="rename-form-<%= file %>" class="w3-bar-item rename-form" action="/rename" method="POST" style="display: none;">
-                        <input type="hidden" name="oldName" value="<%= file %>">
+                    <form id="rename-form-<%= file.name %>" class="w3-bar-item rename-form" action="/rename" method="POST" style="display: none;">
+                        <input type="hidden" name="oldName" value="<%= file.name %>">
                         <input class="w3-input" type="text" name="newName" placeholder="New filename" required>
-                        <button id="submit-rename-button-<%= file %>" class="w3-button w3-green" type="submit" style="display: none;">Submit Rename</button>
+                        <button id="submit-rename-button-<%= file.name %>" class="w3-button w3-green" type="submit" style="display: none;">Submit Rename</button>
                     </form>
                 </li>
             <% }); %>

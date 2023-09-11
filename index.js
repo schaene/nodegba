@@ -41,7 +41,19 @@ const upload = multer({ storage });
 // 1. Display a list of uploaded files on the homepage
 app.get('/', async (req, res) => {
   const files = await fs.readdir(uploadDir);
-  res.render('index', { files });
+  const filesWithSize = [];
+
+  for (const file of files) {
+    const filePath = path.join(uploadDir, file);
+    const fileStats = await fs.stat(filePath);
+
+    // Convert file size to a human-readable format (e.g., KB, MB)
+    const fileSize = (fileStats.size / 1024).toFixed(2) + ' KB';
+
+    filesWithSize.push({ name: file, size: fileSize });
+  }
+
+  res.render('index', { files: filesWithSize });
 });
 
 // 2. Handle file uploads
