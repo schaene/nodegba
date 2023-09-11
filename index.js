@@ -48,9 +48,17 @@ app.get('/', async (req, res) => {
     const fileStats = await fs.stat(filePath);
 
     // Convert file size to a human-readable format (e.g., KB, MB)
-    const fileSize = (fileStats.size / 1024).toFixed(2) + ' KB';
-
-    filesWithSize.push({ name: file, size: fileSize });
+    const fileSize = (fileStats.size / 1024).toFixed(2);
+    if(endsWithGb(file)){
+      filesWithSize.push({ name: file, size: fileSize + " KB --> " + (parseInt(fileSize) + 42.4).toFixed(2).toString() + " KB" });
+    }
+    else if(endsWithNes(file)){
+      filesWithSize.push({ name: file, size: fileSize + "KB --> " + (parseInt(fileSize) + 46.41).toFixed(2).toString() + " KB" });
+    }
+    else{
+      filesWithSize.push({ name: file, size: fileSize + " KB"});
+    }
+    
   }
 
   res.render('index', { files: filesWithSize });
