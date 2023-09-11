@@ -3,7 +3,13 @@ An easy web interface for multibooting a GBA
 
 supports GBA, NES, GB ROMS
 
-Includes:
-https://github.com/bartjakobs/GBA-Multiboot-Python
-https://github.com/Dwedit/PocketNES
-http://goomba.webpersona.com/
+###Includes:
+
+<ul>
+  <li>https://github.com/bartjakobs/GBA-Multiboot-Python</li>
+  <li>https://github.com/Dwedit/PocketNES</li>
+  <li>http://goomba.webpersona.com/</li>
+</ul>
+
+
+
