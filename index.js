@@ -139,11 +139,11 @@ app.post('/run-script/:filename', (req, res) => {
   //Check if its a gameboy game, and if so, package with goomba
   if(endsWithGb(filename)){
     //deletes the cureent goomba patched rom if it exists
-    if (fs.existsSync('./public/goombapatch.gba')) {
+    if (fs.existsSync('./public/temproms/goombapatch.gba')) {
       console.log('File exists.');
     
       // Delete the file
-      fs.unlink('./public/goombapatch.gba', (err) => {
+      fs.unlink('./public/temproms/goombapatch.gba', (err) => {
         if (err) {
           console.error('Error deleting the file:', err);
         } else {
@@ -154,17 +154,17 @@ app.post('/run-script/:filename', (req, res) => {
       console.log('File does not exist.');
     }
     //patched the files
-    concatenateFiles('./public/goomba.gba', './public/uploads/' + filename, './public/goombapatch.gba');
+    concatenateFiles('./public/goomba.gba', './public/uploads/' + filename, './public/temproms/goombapatch.gba');
     //set the command to the goomba file
-    mbcommand = `python ${scriptPath} ./public/goombapatch.gba`;
+    mbcommand = `python ${scriptPath} ./public/temproms/goombapatch.gba`;
   }
   else if(endsWithNes(filename)){
     //deletes the cureent nes patched rom if it exists
-    if (fs.existsSync('./public/pocketnespatch.gba')) {
+    if (fs.existsSync('./public/temproms/pocketnespatch.gba')) {
       console.log('File exists.');
     
       // Delete the file
-      fs.unlink('./public/pocketnespatch.gba', (err) => {
+      fs.unlink('./public/temproms/pocketnespatch.gba', (err) => {
         if (err) {
           console.error('Error deleting the file:', err);
         } else {
@@ -177,10 +177,10 @@ app.post('/run-script/:filename', (req, res) => {
     
     //patched the files
     //concatenateFiles('./public/pocketnes.gba', './public/fillerduck', './public/almostthere.abc');
-    concatenateFiles('./public/pocketnes.gba', './public/uploads/' + filename, './public/pocketnespatch.gba');
+    concatenateFiles('./public/pocketnes.gba', './public/uploads/' + filename, './public/temproms/pocketnespatch.gba');
     
     //set the command to the pocketnes file
-    mbcommand = `python ${scriptPath} ./public/pocketnespatch.gba`;
+    mbcommand = `python ${scriptPath} ./public/temproms/pocketnespatch.gba`;
   }
   else{
     mbcommand = `python ${scriptPath} ${path.join(uploadDir, filename)}`;
