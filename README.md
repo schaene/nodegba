@@ -1,6 +1,8 @@
 # nodegba
 An easy web interface for multibooting a GBA
 
+![Home](/assets/home.png)
+
 supports GBA, NES, GB ROMS
 
 ### Includes:
