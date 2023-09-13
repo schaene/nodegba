@@ -4,9 +4,8 @@ var favicon = require('serve-favicon') // I just... really wanted the icon I gue
 const multer = require('multer'); // Handles file uploads
 const fs = require('fs-extra'); // Provides file system operations
 const path = require('path'); //
-const { spawn } = require('child_process'); // Allows running shell commands
+const { exec } = require('child_process'); // Allows running shell commands
 const { Console } = require('console');
-
 // Create an instance of the Express application
 const app = express();
 const port = 3000;
@@ -199,29 +198,32 @@ app.post('/run-script/:filename', (req, res) => {
     // set the command to the given GBA file
     mbcommand = `python multiboot.py ${path.join(uploadDir, filename)}`;
   }
+  app.set('gbaStatus', 'Searching for GBA');
 
-  // Execute the Python script using spawn to see output live
-  const childProcess = spawn(mbcommand, { shell: true });
-
-  // Handle the stdout and stderr data as it comes in
-  childProcess.stdout.on('data', (data) => {
-    console.log(`Script output: ${data}`);
-  });
-
-  childProcess.stderr.on('data', (data) => {
-    console.error(`Script error: ${data}`);
-  });
-
-  childProcess.on('close', (code) => {
-    if (code === 0) {
-      console.log('Script completed successfully');
-      res.redirect('/');
-    } else {
-      console.error(`Script exited with code ${code}`);
-      res.status(500).send(`Error running script (Exit Code: ${code})`);
+  // Check if a GBA is connected
+  exec('python detectgba.py', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error running script: ${error.message}`);
+      res.status(500).send('Error running script');
+      return;
     }
+    console.log(`Script output: ${stdout}`);
+      // Get the file size of the filename
+      const fileSize = fs.statSync(path.join(uploadDir, filename)).size;
+  });
+
+  // Send ROM to GBA
+  exec(mbcommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error running script: ${error.message}`);
+      res.status(500).send('Error running script');
+      return;
+    }
+    console.log(`Script output: ${stdout}`);
+    //res.redirect('/');
   });
 });
+
 
 // Start the Express server and listen on the specified port
 app.listen(port, () => {
