@@ -1,15 +1,16 @@
 // Import required modules and libraries
-const express = require('express');
-var favicon = require('serve-favicon')
-const multer = require('multer');
+const express = require('express'); //the part that makes the web interface happen
+var favicon = require('serve-favicon') // I just... really wanted the icon I guess?
+const multer = require('multer'); // Handles file uploads
 const fs = require('fs-extra'); // Provides file system operations
-const path = require('path');
+const path = require('path'); //
 const { exec } = require('child_process'); // Allows running shell commands
 const { Console } = require('console');
 
 // Create an instance of the Express application
 const app = express();
 const port = 3000;
+//Use the favicon
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 
 // Configure Express settings
