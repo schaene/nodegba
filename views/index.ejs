@@ -90,7 +90,6 @@
     </section>
     <section class="w3-container">
         <h2>Uploaded Files</h2>
-        <p>Make sure the files don't have spaces or weird characters</p>
         <ul class="w3-ul w3-card-4">
             <!-- Loop through the list of uploaded files and display details -->
             <% files.forEach(file => { %>
@@ -98,7 +97,7 @@
                     <!-- Display the file name -->
                     <span class="w3-bar-item w3-ellipsis"><%= file.name %></span>
                     <!-- Display the file size -->
-                    <span class="w3-bar-item w3-text-gray"><%= file.size %></span>
+                    <span class="w3-bar-item w3-text-gray"><%= file.size %> KB</span>
                     <div class="action-buttons"> <!-- Add the action-buttons class here -->
                         <!-- Form for running a script on the file -->
                         <form class="w3-bar-item" action="/run-script/<%= file.name %>" method="POST">

@@ -1,17 +1,17 @@
 // Import required modules and libraries
-const express = require('express'); //the part that makes the web interface happen
+const express = require('express'); // The part that makes the web interface happen
 var favicon = require('serve-favicon') // I just... really wanted the icon I guess?
 const multer = require('multer'); // Handles file uploads
 const fs = require('fs-extra'); // Provides file system operations
 const path = require('path'); //
-const { exec } = require('child_process'); // Allows running shell commands
+const { spawn } = require('child_process'); // Allows running shell commands
 const { Console } = require('console');
 
 // Create an instance of the Express application
 const app = express();
 const port = 3000;
 //Use the favicon
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+app.use(favicon(path.join('./public/favicon.ico')))
 
 // Configure Express settings
 app.set('view engine', 'ejs'); // Set the view engine to EJS
@@ -19,9 +19,9 @@ app.use(express.static('public')); // Serve static files from the 'public' direc
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
 // Define the directory for file uploads
-const uploadDir = path.join(__dirname, 'public/uploads');
+const uploadDir = './public/uploads';
 
-// Function to clean up a filename
+// Clean a given filename, replaces unwanted characters with underscores.
 const cleanFileName = (fileName) => {
   return fileName.replace(/[^a-zA-Z0-9_.]/g, '_');
 };
@@ -37,9 +37,8 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Define routes and their corresponding actions
 
-// 1. Display a list of uploaded files on the homepage
+// 1. Display a list of uploaded files and their size
 app.get('/', async (req, res) => {
   const files = await fs.readdir(uploadDir);
   const filesWithSize = [];
@@ -48,25 +47,24 @@ app.get('/', async (req, res) => {
     const filePath = path.join(uploadDir, file);
     const fileStats = await fs.stat(filePath);
 
-    // Convert file size to a human-readable format (e.g., KB, MB)
-    const fileSize = (fileStats.size / 1024).toFixed(2);
-    if(endsWithGb(file)){
-      filesWithSize.push({ name: file, size: fileSize + " KB --> " + (parseInt(fileSize) + 42.4).toFixed(2).toString() + " KB" });
+    // Convert file size reading to KB. Max 2 decimal places
+    let fileSize = parseInt((fileStats.size / 1024).toFixed(2));
+    // Inflate the file size for GB and NES files to account for the emulators
+    if(endsWithGb(file)){ // Adds the size of the Goomba Emulator to the GB rom (42.4 KB)
+      fileSize += 42.4;
     }
-    else if(endsWithNes(file)){
-      filesWithSize.push({ name: file, size: fileSize + "KB --> " + (parseInt(fileSize) + 46.41).toFixed(2).toString() + " KB" });
+    else if(endsWithNes(file)){// Adds the size of the Pocket NES Emulator to the NES rom (46.41 KB)
+      fileSize += 46.41;
     }
-    else{
-      filesWithSize.push({ name: file, size: fileSize + " KB"});
-    }
-    
+    // Send off the filename and filesize
+    filesWithSize.push({ name: file, size: fileSize});
   }
-
   res.render('index', { files: filesWithSize });
 });
 
 // 2. Handle file uploads
 app.post('/upload', upload.single('file'), (req, res) => {
+  // Refreshes the page after upload to make the file show on screen
   res.redirect('/');
 });
 
@@ -106,19 +104,19 @@ app.post('/delete/:filename', (req, res) => {
     });
 });
 
-//determines if the rom is a gb game
+// Determines if the rom is a gb game
 function endsWithGb(fileName) {
   const regex = /\.gb$/i; // The "$" matches the end of the string, and "i" makes it case-insensitive
   return regex.test(fileName);
 }
 
-//determines if the rom is an nes game
+// Determines if the rom is an nes game
 function endsWithNes(fileName) {
   const regex = /\.nes$/i; // The "$" matches the end of the string, and "i" makes it case-insensitive
   return regex.test(fileName);
 }
 
-//creates a goomba emulator rom for the file
+// Concatenates 2 given files into one file. The emulators will read the rom attatched to the end of the file.
 async function concatenateFiles(inputFilePath1, inputFilePath2, outputFilePath) {
   try {
     const sourceFiles = [inputFilePath1, inputFilePath2];
@@ -150,74 +148,78 @@ async function concatenateFiles(inputFilePath1, inputFilePath2, outputFilePath) 
   }
 }
 
-// 6. Execute a Python script with a specified file as an argument
-let mbcommand;//stores the command to be executed later
+// Creates a Goomba Emulator rom with the given rom
+function makeGoomba(filename){
+  // Deletes the current goomba patched rom if it exists
+  if (fs.existsSync('./public/temproms/goombapatch.gba')) {
+    fs.unlink('./public/temproms/goombapatch.gba', (err) => {
+      if (err) {
+        console.error('Error deleting the file:', err);
+      } else {
+        console.log('File deleted successfully.');
+      }
+    });
+  }
+  // Patch the emulator
+  concatenateFiles('./public/goomba.gba', './public/uploads/' + filename, './public/temproms/goombapatch.gba');
+}
+
+// Creates a Pocket NES rom with the given rom
+function makePocketNES(filename){
+  // Deletes the current nes patched rom if it exists
+  if (fs.existsSync('./public/temproms/pocketnespatch.gba')) {
+    fs.unlink('./public/temproms/pocketnespatch.gba', (err) => {
+      if (err) {
+        console.error('Error deleting the file:', err);
+      } else {
+        console.log('File deleted successfully.');
+      }
+    });
+  } 
+  // Patch the emulator
+  concatenateFiles('./public/pocketnes.gba', './public/uploads/' + filename, './public/temproms/pocketnespatch.gba');
+}
+
+// 6. Send the Multiboot to the GBA using multiboot.py
+let mbcommand; // stores the command to be executed later
 app.post('/run-script/:filename', (req, res) => {
   const filename = req.params.filename;
   console.log(filename);
-  const scriptPath = 'multiboot.py'; // Replace with your Python script path
 
-  //Check if its a gameboy game, and if so, package with goomba
-  if(endsWithGb(filename)){
-    //deletes the cureent goomba patched rom if it exists
-    if (fs.existsSync('./public/temproms/goombapatch.gba')) {
-      console.log('File exists.');
-    
-      // Delete the file
-      fs.unlink('./public/temproms/goombapatch.gba', (err) => {
-        if (err) {
-          console.error('Error deleting the file:', err);
-        } else {
-          console.log('File deleted successfully.');
-        }
-      });
-    } else {
-      console.log('File does not exist.');
-    }
-    //patched the files
-    concatenateFiles('./public/goomba.gba', './public/uploads/' + filename, './public/temproms/goombapatch.gba');
-    //set the command to the goomba file
-    mbcommand = `python ${scriptPath} ./public/temproms/goombapatch.gba`;
+  // Check if it's a gameboy game, and if so, package with goomba
+  if (endsWithGb(filename)) {
+    makeGoomba(filename);
+    // Set the command to the goomba file
+    mbcommand = `python multiboot.py ./public/temproms/goombapatch.gba`;
+  } else if (endsWithNes(filename)) {
+    makePocketNES(filename);
+    // Set the command to the pocketnes file
+    mbcommand = `python multiboot.py ./public/temproms/pocketnespatch.gba`;
+  } else {
+    // set the command to the given GBA file
+    mbcommand = `python multiboot.py ${path.join(uploadDir, filename)}`;
   }
-  else if(endsWithNes(filename)){
-    //deletes the cureent nes patched rom if it exists
-    if (fs.existsSync('./public/temproms/pocketnespatch.gba')) {
-      console.log('File exists.');
-    
-      // Delete the file
-      fs.unlink('./public/temproms/pocketnespatch.gba', (err) => {
-        if (err) {
-          console.error('Error deleting the file:', err);
-        } else {
-          console.log('File deleted successfully.');
-        }
-      });
-    } else {
-      console.log('File does not exist.');
-    }
-    
-    //patched the files
-    //concatenateFiles('./public/pocketnes.gba', './public/fillerduck', './public/almostthere.abc');
-    concatenateFiles('./public/pocketnes.gba', './public/uploads/' + filename, './public/temproms/pocketnespatch.gba');
-    
-    //set the command to the pocketnes file
-    mbcommand = `python ${scriptPath} ./public/temproms/pocketnespatch.gba`;
-  }
-  else{
-    mbcommand = `python ${scriptPath} ${path.join(uploadDir, filename)}`;
-  }
-  
-  const command = mbcommand;
 
-  // Execute the Python script using the child_process module
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error running script: ${error.message}`);
-      res.status(500).send('Error running script');
-      return;
+  // Execute the Python script using spawn to see output live
+  const childProcess = spawn(mbcommand, { shell: true });
+
+  // Handle the stdout and stderr data as it comes in
+  childProcess.stdout.on('data', (data) => {
+    console.log(`Script output: ${data}`);
+  });
+
+  childProcess.stderr.on('data', (data) => {
+    console.error(`Script error: ${data}`);
+  });
+
+  childProcess.on('close', (code) => {
+    if (code === 0) {
+      console.log('Script completed successfully');
+      res.redirect('/');
+    } else {
+      console.error(`Script exited with code ${code}`);
+      res.status(500).send(`Error running script (Exit Code: ${code})`);
     }
-    console.log(`Script output: ${stdout}`);
-    res.redirect('/');
   });
 });
 
