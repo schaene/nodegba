@@ -51,10 +51,10 @@ app.get('/', async (req, res) => {
     let fileSize = parseInt((fileStats.size / 1024).toFixed(2));
     // Inflate the file size for GB and NES files to account for the emulators
     if(endsWithGb(file)){ // Adds the size of the Goomba Emulator to the GB rom (42.4 KB)
-      fileSize += 42.4;
+      fileSize = (fileSize + 42.4).toFixed(2);
     }
     else if(endsWithNes(file)){// Adds the size of the Pocket NES Emulator to the NES rom (46.41 KB)
-      fileSize += 46.41;
+      fileSize = (fileSize + 46.41).toFixed(2);
     }
     // Send off the filename and filesize
     filesWithSize.push({ name: file, size: fileSize});

@@ -51,6 +51,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end; /* Align buttons to the right */
+            
         }
 
         .action-buttons button {
@@ -66,11 +67,11 @@
             const submitRenameButton = document.getElementById(`submit-rename-button-${fileName}`);
             if (renameForm.style.display === 'none' || renameForm.style.display === '') {
                 renameForm.style.display = 'block'; // Show rename form
-                renameButton.style.display = 'none'; // Hide rename button
+                //renameButton.style.display = 'none'; // Hide rename button
                 submitRenameButton.style.display = 'block'; // Show submit rename button
             } else {
                 renameForm.style.display = 'none'; // Hide rename form
-                renameButton.style.display = 'block'; // Show rename button
+                //renameButton.style.display = 'block'; // Show rename button
                 submitRenameButton.style.display = 'none'; // Hide submit rename button
             }
         }
@@ -93,15 +94,16 @@
         <ul class="w3-ul w3-card-4">
             <!-- Loop through the list of uploaded files and display details -->
             <% files.forEach(file => { %>
+                <!-- check if the file.size is above 256 KB-->
                 <li class="w3-bar">
                     <!-- Display the file name -->
-                    <span class="w3-bar-item w3-ellipsis"><%= file.name %></span>
+                    <span class="w3-bar-item w3-ellipsis <%= file.size > 256 ? 'w3-text-red' : '' %>"><%= file.name %></span>
                     <!-- Display the file size -->
-                    <span class="w3-bar-item w3-text-gray"><%= file.size %> KB</span>
+                    <span class="w3-bar-item <%= file.size > 256 ? 'w3-text-red' : 'w3-text-grey' %>"><%= file.size %> KB</span>
                     <div class="action-buttons"> <!-- Add the action-buttons class here -->
                         <!-- Form for running a script on the file -->
                         <form class="w3-bar-item" action="/run-script/<%= file.name %>" method="POST">
-                            <button class="w3-button w3-blue" type="submit">Send MultiBoot</button>
+                            <button class="w3-button w3-blue" type="submit" <%= file.size > 256 ? 'disabled' : '' %>>Send MultiBoot</button>
                         </form>    
                         <!-- Rename button with a JavaScript function call to toggleRenameForm -->
                         <button id="rename-button-<%= file.name %>" class="w3-button w3-purple" onclick="toggleRenameForm(event, '<%= file.name %>')">Rename</button>
