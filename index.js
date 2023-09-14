@@ -181,8 +181,9 @@ function makePocketNES(filename){
 
 // 6. Send the Multiboot to the GBA using multiboot.py
 let mbcommand; // stores the command to be executed later
-app.post('/run-script/:filename', (req, res) => {
+app.post('/run-script/:filename/:filesize', (req, res) => {
   const filename = req.params.filename;
+  const filesize = req.params.filesize
   console.log(filename);
 
   // Check if it's a gameboy game, and if so, package with goomba
@@ -198,7 +199,8 @@ app.post('/run-script/:filename', (req, res) => {
     // set the command to the given GBA file
     mbcommand = `python multiboot.py ${path.join(uploadDir, filename)}`;
   }
-  app.set('gbaStatus', 'Searching for GBA');
+
+  //res.write('Searching for GBA');
 
   // Check if a GBA is connected
   exec('python detectgba.py', (error, stdout, stderr) => {
@@ -208,9 +210,10 @@ app.post('/run-script/:filename', (req, res) => {
       return;
     }
     console.log(`Script output: ${stdout}`);
-      // Get the file size of the filename
-      const fileSize = fs.statSync(path.join(uploadDir, filename)).size;
+      res.render('searching.ejs', {filename : filename, fileSize : filesize})
   });
+
+  
 
   // Send ROM to GBA
   exec(mbcommand, (error, stdout, stderr) => {
@@ -220,7 +223,6 @@ app.post('/run-script/:filename', (req, res) => {
       return;
     }
     console.log(`Script output: ${stdout}`);
-    //res.redirect('/');
   });
 });
 

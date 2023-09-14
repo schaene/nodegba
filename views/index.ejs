@@ -102,7 +102,7 @@
                     <span class="w3-bar-item <%= file.size > 256 ? 'w3-text-red' : 'w3-text-grey' %>"><%= file.size %> KB</span>
                     <div class="action-buttons"> <!-- Add the action-buttons class here -->
                         <!-- Form for running a script on the file -->
-                        <form class="w3-bar-item" action="/run-script/<%= file.name %>" method="POST">
+                        <form class="w3-bar-item" action="/run-script/<%= file.name %>/<%= file.size %>" method="POST">
                             <button class="w3-button w3-blue" type="submit" <%= file.size > 256 ? 'disabled' : '' %>>Send MultiBoot</button>
                         </form>    
                         <!-- Rename button with a JavaScript function call to toggleRenameForm -->
