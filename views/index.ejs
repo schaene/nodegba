@@ -57,6 +57,18 @@
         .action-buttons button {
             margin-right: 10px; /* Add margin between buttons */
         }
+
+        /* New CSS for the searching banner */
+        #searchingBanner {
+            position: fixed;
+            top: 50%; /* Position it vertically in the middle of the screen */
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 255, 0.5); /* Semi-transparent blue background */
+            text-align: center;
+            padding: 10px;
+            display: none; /* Initially hidden */
+        }
     </style>
     <script>
         // JavaScript function to toggle the visibility of rename forms
@@ -75,6 +87,13 @@
                 submitRenameButton.style.display = 'none'; // Hide submit rename button
             }
         }
+
+        // JavaScript function to handle the Send Multiboot button click
+        function sendMultiboot() {
+            const searchingBanner = document.getElementById('searchingBanner');
+            searchingBanner.style.display = 'block';
+            
+        }
     </script>
 </head>
 <body>
@@ -89,6 +108,11 @@
             <button class="w3-button w3-green" type="submit">Upload</button>
         </form>
     </section>
+    <!-- Shows the searching for GBA banner-->
+    <div id="searchingBanner">
+        <img src="loading-spinner.gif" alt="Loading...">
+        <h1>Searching for GBA...</h1>
+    </div>
     <section class="w3-container">
         <h2>Uploaded Files</h2>
         <ul class="w3-ul w3-card-4">
@@ -103,8 +127,17 @@
                     <div class="action-buttons"> <!-- Add the action-buttons class here -->
                         <!-- Form for running a script on the file -->
                         <form class="w3-bar-item" action="/run-script/<%= file.name %>/<%= file.size %>" method="POST">
-                            <button class="w3-button w3-blue" type="submit" <%= file.size > 256 ? 'disabled' : '' %>>Send MultiBoot</button>
-                        </form>    
+                            <!-- Add a loading spinner next to the button -->
+                            <button
+                                id="send-multiboot-button-<%= file.name %>"
+                                class="w3-button w3-blue"
+                                onclick='sendMultiboot()'
+                                <%= file.size > 256 ? 'disabled' : '' %>
+                            >
+                                Send MultiBoot
+                            </button>
+                            <img id="loading-spinner" src="loading-spinner.gif" alt="Loading..." style="display: none;">
+                        </form>
                         <!-- Rename button with a JavaScript function call to toggleRenameForm -->
                         <button id="rename-button-<%= file.name %>" class="w3-button w3-purple" onclick="toggleRenameForm(event, '<%= file.name %>')">Rename</button>
                         <!-- Download button for the file -->
