@@ -5,7 +5,6 @@ const multer = require('multer'); // Handles file uploads
 const fs = require('fs-extra'); // Provides file system operations
 const path = require('path'); //
 const { exec } = require('child_process'); // Allows running shell commands
-const { Console } = require('console');
 // Create an instance of the Express application
 const app = express();
 const port = 3000;
