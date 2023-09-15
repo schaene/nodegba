@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= filename %></title>
+    <title>Rom title: <%= filename %></title>
     <!-- Include W3.CSS stylesheet from w3schools.com -->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <!-- Custom CSS for styling -->
@@ -23,9 +23,10 @@
             padding: 20px;
             border: 1px solid #ddd; /* Gray border for sections */
         }
-        h1{
-          color: #FFFFFF
-        } h2 {
+        h1 {
+            color: #FFFFFF;
+        }
+        h2 {
             color: #4CAF50; /* Green text color for h2 elements */
         }
       </style>
@@ -34,35 +35,50 @@
     <header class="w3-container w3-green">
       <h1>GBA MultiBoot Server</h1>
     </header>
-    <h2><%= filename %></h1>
+    <h2>Rom title: <%= filename %></h2>
     <h2 id="fileSize"><%= fileSize %></h2>
 
-
-        <div class="w3-container">
-            <div class="w3-light-grey w3-small">
-                <div id="progressBar" class="w3-container w3-center w3-padding w3-green w3-text-white" style="width: 0%;"></div>
-            </div>
-        </div>
-
-
+    <div class="w3-container">
+      <div class="w3-light-grey">
+        <div id="progressBar" class="w3-container w3-green w3-center" style="height: 24px; width: 0%;"></div>
+      </div>
+    </div>
 
     <script>
       let totalFileSize = parseInt(document.getElementById('fileSize').innerText);
-      let percentIncrement = 100 / totalFileSize;
-
+      let maxDuration = 45000; // 45 seconds
 
       var elem = document.getElementById("progressBar");   
       var width = 0;
-      var id = setInterval(frame, percentIncrement/100);
+      var step = + ((6 / totalFileSize)); // Adjust the step based on the file size
+      elem.style.width = width + '%'
+      
       function frame() {
         if (width >= 100) {
-          clearInterval(id);
-        } else {
-          width++; 
+          clearInterval(interval);
+          location.replace("/") 
+        }else if (width == 0){
+          sleep(1500);
+          width += step; 
           elem.style.width = width + '%'; 
-          elem.innerHTML = width * 1  + '%';
+          elem.innerHTML = (width * 1).toFixed(2)  + '%'
+        } else {
+          width += step; 
+          elem.style.width = width + '%'; 
+          elem.innerHTML = (width * 1).toFixed(2)  + '%'
         }
       }
+
+      function sleep(milliseconds) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+          if ((new Date().getTime() - start) > milliseconds){
+          break;
+          }
+         }
+      }
+
+      var interval = setInterval(frame, 10);
     </script>
   </body>
 </html>

@@ -203,6 +203,7 @@ app.post('/run-script/:filename/:filesize', (req, res) => {
   //res.write('Searching for GBA');
 
   // Check if a GBA is connected
+  console.log('Checking if gba is connected:');
   exec('python detectgba.py', (error, stdout, stderr) => {
     if (error) {
       console.error(`Error running script: ${error.message}`);
@@ -210,19 +211,17 @@ app.post('/run-script/:filename/:filesize', (req, res) => {
       return;
     }
     console.log(`Script output: ${stdout}`);
-      res.render('searching.ejs', {filename : filename, fileSize : filesize})
-  });
-
-  
-
-  // Send ROM to GBA
-  exec(mbcommand, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error running script: ${error.message}`);
-      res.status(500).send('Error running script');
-      return;
-    }
-    console.log(`Script output: ${stdout}`);
+    res.render('searching.ejs', {filename : filename, fileSize : filesize})
+    // Send ROM to GBA
+    console.log('Sending rom to GBA');
+    exec(mbcommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error running script: ${error.message}`);
+        res.status(500).send('Error running script');
+        return;
+      }
+      console.log(`Script output: ${stdout}`);
+    });
   });
 });
 
