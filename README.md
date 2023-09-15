@@ -1,6 +1,7 @@
 # Node GBA Multiboot Server
 An easy web interface for multibooting ROMs on a GBA
 
+[![Demo Video](https://img.youtube.com/vi/6aRVQPOI518/hqdefault.jpg)](https://youtu.be/6aRVQPOI518)
 ![Home](/assets/home.png)
 
 supports GBA, NES, and GB ROMS by automatically using the Goomba GB and Pocket NES Emulators
