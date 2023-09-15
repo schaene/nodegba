@@ -1,6 +1,7 @@
 # Uploaded Roms
 public/uploads/*
 public/temproms/*
+!public/uploads/Bread_Spin.gba
 
 # Logs
 logs
